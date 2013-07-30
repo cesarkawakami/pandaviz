@@ -7,6 +7,7 @@ import beaker.cache
 
 import pyramid.decorator
 import pyramid.httpexceptions
+import pyramid.threadlocal
 import pyramid.view
 
 from pandaviz import models
@@ -20,7 +21,7 @@ def includeme(config):
 
 @pyramid.view.view_config(route_name="home", renderer="templates/main.pt")
 def home(request):
-    bins = _global_scores(request)
+    bins = _global_scores()
     return {"bins": json.dumps(bins)}
 
 
@@ -74,7 +75,8 @@ def school(request):
 
 
 @beaker.cache.cache_region("default")
-def _global_scores(request):
+def _global_scores():
+    request = pyramid.threadlocal.get_current_request()
     scores = [
         x.score_math for x in request.db.query(models.Student).all() if x.score_math is not None]
     return _binize(scores)
