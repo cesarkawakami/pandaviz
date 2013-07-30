@@ -1,0 +1,1 @@
+from .schooldata import *
